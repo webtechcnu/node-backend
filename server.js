@@ -1,34 +1,31 @@
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import { connectDB } from "./config/db.js";
+import productRoutes from "productRoutes.js";
 
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// --- CORS setup (allow only your UI domain) ---
+const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:4200";
+app.use(
+  cors({
+    origin: allowedOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+// --- Middleware ---
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB connected"))
-    .catch(err => console.error("Mongo error:", err));
+// --- Routes ---
+app.use("/products", productRoutes);
 
-const productSchema = new mongoose.Schema({
-    name: String,
-    price: Number,
-});
-const Product = mongoose.model("Product", productSchema);
+// --- DB Connection ---
+connectDB();
 
-app.get("/products", async (req, res) => {
-    const products = await Product.find();
-    res.json(products);
-});
-
-app.post("/products", async (req, res) => {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.status(201).json(newProduct);
-});
-
+// --- Start server ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

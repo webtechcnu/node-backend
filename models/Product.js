@@ -5,17 +5,19 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true, // removes extra spaces
+      minlength: [2, "Name must be at least 2 characters long"]
     },
     price: {
       type: Number,
-      required: true,
+      required: [true, "Price is required"],
       min: 0,
     },
     description: {
       type: String,
       default: "",
+      maxlength: [200, "Description too long"],
     },
     createdAt: {
       type: Date,
