@@ -25,5 +25,6 @@ const productSchema = new mongoose.Schema(
   { versionKey: false } // disables the "__v" version field
 );
 
+
 // Export model so it can be used in routes or controllers
 export const Product = mongoose.model("Product", productSchema);
