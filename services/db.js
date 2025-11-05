@@ -1,8 +1,8 @@
-import { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 
 export const connectDB = async (mongoURI) => {
     try {
-        await Mongoose.connect(mongoURI);
+        await mongoose.connect(mongoURI);
         console.log("MongoDB connected");
     } catch (err) {
         console.error("Mongo error:", err);
