@@ -1,31 +1,54 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { connectDB } from "./config/db.js";
-import productRoutes from "productRoutes.js";
+import { connectDB } from "./services/db.js";
+import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 const app = express();
 
-// --- CORS setup (allow only your UI domain) ---
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:4200";
+// CORS setup (allow only your UI domain) 
+const allowedOrigins = process.env.CLIENT_ORIGINS.split(",");
 app.use(
   cors({
-    origin: allowedOrigin,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin, callback) => {
+      // allow REST tools like Postman (no origin)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
-// --- Middleware ---
+// middleware 
 app.use(express.json());
 
-// --- Routes ---
+// routes 
 app.use("/products", productRoutes);
+app.use("/auth", authRoutes);
 
-// --- DB Connection ---
-connectDB();
 
-// --- Start server ---
+// DB Connection 
+const dbURI = process.env.MONGO_URI;
+connectDB(dbURI);
+
+// start server 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+// TODO:
+// 1. jwt token authentication
+// 2. error handling middleware
+// 3. GraphQL endpoint
+// 4. Add example fetch request 
+// 5. Unit test example
+// 6. Dockerfile for containerization
+
